@@ -1,0 +1,47 @@
+---
+title: "Simulated Example"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Simulated Example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Electronic health records (EHR) linked with biorepositories are 
+a powerful platform for translational studies. A major bottleneck exists 
+in the ability to phenotype patients accurately and efficiently. 
+Towards that end, we developed an automated high-throughput 
+phenotyping method integrating International 
+Classification of Diseases (ICD) codes and narrative data extracted 
+using natural language processing (NLP). Specifically, our proposed method, 
+called MAP (Map Automated Phenotyping algorithm), fits an ensemble of latent 
+mixture models on aggregated ICD and NLP counts along with healthcare 
+utilization. The MAP algorithm yields a predicted probability of phenotype 
+for each patient and a threshold for classifying subjects with phenotype 
+yes/no [See Katherine P. Liao, et al. (2019](https://pubmed.ncbi.nlm.nih.gov/31613361/).
+
+## MAP function call on example data
+
+Here we show the example call to the MAP function. Two parameters are 
+Simulate data to test the algorithm
+
+```{r}
+library(MAP)
+set.seed(123)
+n_patients = 400
+frequency_ICD_codes = c(rpois(n_patients / 4, 10), rpois(n_patients / 4, 1), rep(0, n_patients / 2))
+frequency_NLP_CUIs = c(rpois(n_patients / 4, 10), rpois(n_patients / 4, 1), rep(0, n_patients / 2))
+
+m_data = Matrix(data = cbind(frequency_ICD_codes, frequency_NLP_CUIs), sparse = TRUE)
+m_healthcare_util = Matrix(rpois(n_patients, 10) + 5, ncol = 1, sparse = TRUE)
+
+map_fit = MAP(mat = m_data, note = m_healthcare_util)
+```
+
+```{r}
+head(map_fit$scores)
+```
+
+```{r}
+map_fit$cut.MAP
+```
